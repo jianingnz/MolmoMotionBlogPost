@@ -199,19 +199,20 @@
 
     <p class="demo-label">"Move and rotate wooden bowl with fruits on the table"</p>
     <div class="gif-row">
-      <img src="images/image4.gif" alt="Wooden bowl motion forecasting, view 1" />
-      <img src="images/image9.gif" alt="Wooden bowl motion forecasting, view 2" />
+      <img src="images/image4.gif" alt="Wooden bowl, ground truth" />
+      <img src="images/image9.gif" alt="Wooden bowl, MolmoMotion prediction" />
     </div>
 
     <p class="demo-label">"Roll a lint roller on a blue cloth"</p>
     <div class="gif-row">
-      <img src="images/image12.gif" alt="Lint roller motion forecasting, view 1" />
-      <img src="images/image10.gif" alt="Lint roller motion forecasting, view 2" />
+      <img src="images/image10.gif" alt="Lint roller, ground truth" />
+      <img src="images/image12.gif" alt="Lint roller, MolmoMotion prediction" />
     </div>
 
     <figcaption>
-      MolmoMotion forecasts future 3D point trajectories that closely track the ground-truth
-      motion, generalizing across diverse objects, scenes, and language instructions.
+      In each pair, the left clip is the ground-truth motion and the right clip is
+      MolmoMotion's predicted 3D point trajectories. MolmoMotion generalizes across diverse
+      objects, scenes, and language instructions.
     </figcaption>
 
     <p style="margin-top:40px;">
@@ -231,13 +232,18 @@
 
     <h3>Downstream evaluation: robotics planning</h3>
 
-    <div class="gif-row">
-      <img src="images/image18.gif" alt="Robot: take cloth out of container" />
-      <img src="images/image3.gif" alt="Robot: move lid on pot" />
+    <div class="vid-section">
+      <div class="vid-compare two">
+        <figure class="vid-col">
+          <p class="vid-method">"Take cloth out of container"</p>
+          <img src="images/image18.gif" alt="Robot: take cloth out of container" />
+        </figure>
+        <figure class="vid-col">
+          <p class="vid-method">"Move lid on pot"</p>
+          <img src="images/image3.gif" alt="Robot: move lid on pot" />
+        </figure>
+      </div>
     </div>
-    <p class="demo-label" style="text-align:center;">
-      "Take cloth out of container" &nbsp;&nbsp;&nbsp;&nbsp; "Move lid on pot"
-    </p>
     <figcaption>
       After light fine-tuning on real robot footage from DROID, MolmoMotion predicts
       coherent object trajectories across varied manipulation tasks.
@@ -276,20 +282,17 @@
     <div class="vid-section">
       <p class="demo-label">"A flamingo dips its beak into the water while walking to the right"</p>
       <div class="vid-compare">
-        <figure class="vid-col">
+        <figure class="vid-col best">
           <p class="vid-method">DaS + MolmoMotion</p>
           <img src="images/image7.gif" alt="Flamingo video generation" />
-          <span class="vid-id">image7.gif</span>
         </figure>
         <figure class="vid-col">
           <p class="vid-method">CogVideoX-5B</p>
           <img src="images/image13.gif" alt="Flamingo video generation" />
-          <span class="vid-id">image13.gif</span>
         </figure>
         <figure class="vid-col">
           <p class="vid-method">WAN-14B</p>
           <img src="images/image17.gif" alt="Flamingo video generation" />
-          <span class="vid-id">image17.gif</span>
         </figure>
       </div>
     </div>
@@ -297,20 +300,17 @@
     <div class="vid-section">
       <p class="demo-label">"Take the round light brown plate from the table"</p>
       <div class="vid-compare">
-        <figure class="vid-col">
+        <figure class="vid-col best">
           <p class="vid-method">DaS + MolmoMotion</p>
-          <img src="images/image6.gif" alt="Plate video generation" />
-          <span class="vid-id">image6.gif</span>
+          <img src="images/image5.gif" alt="Plate video generation" />
         </figure>
         <figure class="vid-col">
           <p class="vid-method">CogVideoX-5B</p>
           <img src="images/image11.gif" alt="Plate video generation" />
-          <span class="vid-id">image11.gif</span>
         </figure>
         <figure class="vid-col">
           <p class="vid-method">WAN-14B</p>
-          <img src="images/image5.gif" alt="Plate video generation" />
-          <span class="vid-id">image5.gif</span>
+          <img src="images/image6.gif" alt="Plate video generation" />
         </figure>
       </div>
     </div>

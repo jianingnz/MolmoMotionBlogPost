@@ -9,6 +9,7 @@
   --ai2-light: #f3efe6;         /* hero title text */
   --ai2-light-soft: #b9cac4;    /* hero muted text */
   --ai2-accent: #f0529c;        /* AI2 pink accent */
+  --ai2-green: #1aa06b;         /* positive / "ours" green */
   --maxw: 760px;
 }
 
@@ -165,6 +166,7 @@ figcaption {
   font-weight: 600;
   margin: 36px 0 12px;
   color: var(--ai2-text);
+  text-align: center;
 }
 .gif-row {
   display: flex;
@@ -193,6 +195,7 @@ figcaption {
   gap: 18px;
   align-items: start;
 }
+.vid-compare.two { grid-template-columns: repeat(2, 1fr); }
 .vid-col {
   margin: 0;
   display: flex;
@@ -210,6 +213,10 @@ figcaption {
   height: auto;
   border-radius: 8px;
   background: var(--ai2-cream-2);
+}
+/* highlight the "ours" column */
+.vid-col.best img {
+  box-shadow: 0 0 0 3px var(--ai2-green);
 }
 .vid-id {
   display: inline-block;
