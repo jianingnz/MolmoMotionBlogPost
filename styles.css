@@ -186,7 +186,9 @@ figcaption {
 /* video-generation comparison grid (3 methods on one horizontal level) */
 .vid-section {
   width: min(980px, 94vw);
-  margin: 40px auto;
+  margin: 40px 0;
+  margin-left: 50%;
+  transform: translateX(-50%);
 }
 .vid-section .demo-label { text-align: center; }
 .vid-compare {
