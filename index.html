@@ -52,17 +52,17 @@
     </p>
 
     <p>
-      We choose <strong>object-attached 3D points in world space</strong> as our motion
+      We choose <strong>object attached 3D points in world space</strong> as our motion
       representation, because we believe a general motion representation needs three
       properties.
     </p>
 
     <ul>
-      <li>It should be class-agnostic: not tied to templates for human bodies, hands, rigid
+      <li>it should be class-agnostic: not tied to templates for human bodies, hands, rigid
         objects, or any other fixed category.</li>
-      <li>It should be view-stable: the same physical motion should be represented
+      <li>it should be view-stable: the same physical motion should be represented
         consistently across cameras and viewpoints.</li>
-      <li>It should be directly usable by downstream systems that need to reason about
+      <li>it should be directly usable by downstream systems that need to reason about
         physical motion.</li>
     </ul>
 
@@ -280,7 +280,7 @@
     </p>
 
     <p>
-      The DROID visualizations show the same motion prior transferring to real robot
+      The DROID visualizations show the same motion prior to transferring to real robot
       scenarios. After fine-tuning on DROID videos, MolmoMotion predicts coherent object
       trajectories across different objects, scenes, and manipulation instructions. The
       tracks follow the intended object motion, suggesting that the model's 3D motion prior
