@@ -220,6 +220,16 @@ figcaption {
 .vid-col.best img {
   box-shadow: 0 0 0 3px var(--ai2-green);
 }
+/* crop-zoom into a clip that has too much empty space */
+.zoom-wrap {
+  overflow: hidden;
+  border-radius: 8px;
+  line-height: 0;
+}
+.zoom-wrap img {
+  transform: scale(1.85);
+  transform-origin: center 55%;
+}
 .vid-id {
   display: inline-block;
   align-self: center;
