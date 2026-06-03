@@ -176,23 +176,6 @@
       </figcaption>
     </figure>
 
-    <p class="demo-label">"Move and rotate wooden bowl with fruits on the table"</p>
-    <div class="gif-row">
-      <img src="images/image4.gif" alt="Wooden bowl motion prediction, view 1" />
-      <img src="images/image9.gif" alt="Wooden bowl motion prediction, view 2" />
-    </div>
-
-    <p class="demo-label">"Roll a lint roller on a blue cloth"</p>
-    <div class="gif-row">
-      <img src="images/image12.gif" alt="Lint roller motion prediction, view 1" />
-      <img src="images/image10.gif" alt="Lint roller motion prediction, view 2" />
-    </div>
-
-    <figcaption style="margin-top:18px;">
-      MolmoMotion predicts future 3D point trajectories that closely match ground-truth
-      motion across diverse objects, scenes, and language instructions.
-    </figcaption>
-
     <p style="margin-top:40px;">
       To evaluate motion forecasting, we also built PointMotionBench, a human-validated
       benchmark of held-out 3D trajectories. It covers 2720 clips spanning 111 object
@@ -214,7 +197,24 @@
 
     <h3>3D motion forecasting</h3>
 
-    <p>
+    <p class="demo-label">"Move and rotate wooden bowl with fruits on the table"</p>
+    <div class="gif-row">
+      <img src="images/image4.gif" alt="Wooden bowl motion forecasting, view 1" />
+      <img src="images/image9.gif" alt="Wooden bowl motion forecasting, view 2" />
+    </div>
+
+    <p class="demo-label">"Roll a lint roller on a blue cloth"</p>
+    <div class="gif-row">
+      <img src="images/image12.gif" alt="Lint roller motion forecasting, view 1" />
+      <img src="images/image10.gif" alt="Lint roller motion forecasting, view 2" />
+    </div>
+
+    <figcaption>
+      MolmoMotion forecasts future 3D point trajectories that closely track the ground-truth
+      motion, generalizing across diverse objects, scenes, and language instructions.
+    </figcaption>
+
+    <p style="margin-top:40px;">
       We first evaluate MolmoMotion on PointMotionBench, our held-out benchmark for
       object-centric 3D motion forecasting. In this setting, each method receives the
       current visual observation, query points on an object, and, when supported, a
@@ -239,8 +239,8 @@
       "Take cloth out of container" &nbsp;&nbsp;&nbsp;&nbsp; "Move lid on pot"
     </p>
     <figcaption>
-      MolmoMotion adapts efficiently to real robot videos from DROID. After fine-tuning,
-      the model predicts coherent object trajectories across different manipulation tasks.
+      After light fine-tuning on real robot footage from DROID, MolmoMotion predicts
+      coherent object trajectories across varied manipulation tasks.
     </figcaption>
 
     <p style="margin-top:40px;">
@@ -267,23 +267,58 @@
 
     <h3>Downstream evaluation: video generation</h3>
 
-    <p class="demo-label">"A flamingo dips its beak into the water while walking to the right"</p>
-    <div class="gif-row">
-      <img src="images/image7.gif" alt="Flamingo video generation, frame set 1" />
-      <img src="images/image13.gif" alt="Flamingo video generation, frame set 2" />
-      <img src="images/image17.gif" alt="Flamingo video generation, frame set 3" />
+    <!--
+      VIDEO-GEN COMPARISON. Three methods per prompt: "DaS + MolmoMotion",
+      "CogVideoX-5B", "WAN-14B". The column titles below are a PROVISIONAL order.
+      Each clip shows its filename tag underneath so you can tell me the correct
+      mapping, e.g. "image7 = WAN-14B, image13 = DaS + MolmoMotion, image17 = CogVideoX-5B".
+    -->
+    <div class="vid-section">
+      <p class="demo-label">"A flamingo dips its beak into the water while walking to the right"</p>
+      <div class="vid-compare">
+        <figure class="vid-col">
+          <p class="vid-method">DaS + MolmoMotion</p>
+          <img src="images/image7.gif" alt="Flamingo video generation" />
+          <span class="vid-id">image7.gif</span>
+        </figure>
+        <figure class="vid-col">
+          <p class="vid-method">CogVideoX-5B</p>
+          <img src="images/image13.gif" alt="Flamingo video generation" />
+          <span class="vid-id">image13.gif</span>
+        </figure>
+        <figure class="vid-col">
+          <p class="vid-method">WAN-14B</p>
+          <img src="images/image17.gif" alt="Flamingo video generation" />
+          <span class="vid-id">image17.gif</span>
+        </figure>
+      </div>
     </div>
 
-    <p class="demo-label">"Take the round light brown plate from the table"</p>
-    <div class="gif-row">
-      <img src="images/image6.gif" alt="Plate video generation, frame set 1" />
-      <img src="images/image11.gif" alt="Plate video generation, frame set 2" />
-      <img src="images/image5.gif" alt="Plate video generation, frame set 3" />
+    <div class="vid-section">
+      <p class="demo-label">"Take the round light brown plate from the table"</p>
+      <div class="vid-compare">
+        <figure class="vid-col">
+          <p class="vid-method">DaS + MolmoMotion</p>
+          <img src="images/image6.gif" alt="Plate video generation" />
+          <span class="vid-id">image6.gif</span>
+        </figure>
+        <figure class="vid-col">
+          <p class="vid-method">CogVideoX-5B</p>
+          <img src="images/image11.gif" alt="Plate video generation" />
+          <span class="vid-id">image11.gif</span>
+        </figure>
+        <figure class="vid-col">
+          <p class="vid-method">WAN-14B</p>
+          <img src="images/image5.gif" alt="Plate video generation" />
+          <span class="vid-id">image5.gif</span>
+        </figure>
+      </div>
     </div>
 
     <figcaption>
-      MolmoMotion-guided video generation produces more realistic object motion and follows
-      the prompted action more closely.
+      Across both prompts, MolmoMotion-guided generation (DaS + MolmoMotion) produces more
+      physically plausible object motion and follows the instruction more faithfully than
+      CogVideoX-5B and WAN-14B.
     </figcaption>
 
     <p style="margin-top:40px;">
