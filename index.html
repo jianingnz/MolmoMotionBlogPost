@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MolmoMotion — Language-guided 3D motion forecasting</title>
+  <meta name="description" content="MolmoMotion: given a video clip and a sentence describing what happens next, it predicts where tracked points on an object will move in 3D space." />
+
+  <!-- Manrope -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ===================== HERO ===================== -->
+  <header class="hero">
+    <div class="hero-inner">
+      <p class="eyebrow">AI2 Research</p>
+      <h1>MolmoMotion</h1>
+      <p class="subtitle">Language-guided 3D motion forecasting</p>
+      <p class="lede">
+        Given a video clip and a sentence describing what happens next, MolmoMotion
+        predicts where tracked points on an object will move in 3D space—enabling
+        better robots and better video generation.
+      </p>
+    </div>
+  </header>
+
+  <!-- ===================== ARTICLE ===================== -->
+  <main class="article">
+
+    <p>
+      Machines have become remarkably good at perceiving motion. Given a video, modern
+      models can estimate how objects and points move through the scene. But perception is
+      essentially retrospective: it explains motion that has already happened. A lot of the
+      systems and applications we want to build need to <strong>look forward</strong>
+      instead. A robot reaching for a cup has to anticipate how the cup will move before it
+      touches it. A video generator has to know what realistic motion comes next if it's
+      going to produce physically plausible frames.
+      <strong>Predicting motion is harder than observing it, but it is also far more useful.</strong>
+    </p>
+
+    <p>
+      This idea became <strong>MolmoMotion</strong>, a new motion forecasting model we're
+      releasing today. Given a video frame, 3D points marked on an object, and a sentence
+      describing what's about to happen, MolmoMotion predicts where those points will move
+      over the next few seconds in 3D space, with accuracy far surpassing most existing
+      forecasting methods.
+    </p>
+
+    <p>
+      We choose <strong>object-attached 3D points in world space</strong> as our motion
+      representation, because we believe a general motion representation needs three
+      properties. First, it should be class-agnostic: not tied to templates for human
+      bodies, hands, rigid objects, or any other fixed category. Second, it should be
+      view-stable: the same physical motion should be represented consistently across
+      cameras and viewpoints. Third, it should be directly usable by downstream systems
+      that need to reason about physical motion. Object-attached 3D points are the only
+      representation that satisfy all three. A sparse set of surface points can describe
+      rigid, articulated, or deformable motion without assuming the type of object being
+      moved. Because the points live in a shared world frame, their trajectories remain
+      stable across camera motion and viewpoint change. Unlike video generation, which
+      spends much of its capacity rendering appearance, lighting, and camera motion, 3D
+      point trajectories isolate the physical motion we actually want to forecast. And
+      because they are compact, explicit trajectories in 3D space, they can be passed
+      directly to systems such as robot policies or video generation models.
+    </p>
+
+    <figure class="full">
+      <img src="images/image1.png" alt="MolmoMotion teaser overview" />
+    </figure>
+
+    <p>
+      Alongside the model, we're releasing <strong>MolmoMotion-1M</strong>, the largest
+      collection of 3D point trajectories paired with action descriptions, drawn from
+      1.16M videos. We're also releasing <strong>PointMotionBench</strong>, a
+      human-validated benchmark with 2720 clips.
+    </p>
+
+    <p>
+      We see MolmoMotion as a step toward AI systems that can reason not only about what is
+      in the world, but what is about to happen next. Moreover, this motion prediction task
+      turns out to be useful across a range of downstream tasks, from robot planning to
+      controllable video generation. More broadly, we hope 3D motion forecasting becomes a
+      foundation for building models that understand the physical world through motion. All
+      the models and artifacts are open source for the community to study, deeply
+      customize, and improve.
+    </p>
+
+    <!-- ===================== MODEL ===================== -->
+    <h2>MolmoMotion Model</h2>
+
+    <p>
+      MolmoMotion uses Molmo 2 as its vision-language backbone, allowing it to connect
+      language instructions to objects and points in the image. Given a short video
+      history, an action description, and a set of query points with their initial 3D
+      positions, the model first builds a shared understanding of what object is being
+      referred to, where the points are, and what motion the instruction describes. It then
+      predicts the future 3D trajectory of each point.
+    </p>
+
+    <p>We train two variants of MolmoMotion:</p>
+
+    <ul>
+      <li>
+        The <strong>autoregressive variant (MolmoMotion-AR)</strong> predicts future
+        coordinates step by step. It represents 3D coordinates as structured text,
+        following the coordinate-style prediction used by vision-language models, and
+        writes out the future trajectory in temporal order. Because each new coordinate is
+        conditioned on the trajectory already generated, this encourages smooth rollouts
+        and gives the strongest accuracy when the future path is well-defined.
+      </li>
+      <li>
+        The <strong>flow-matching variant (MolmoMotion-FM)</strong> predicts trajectories
+        in continuous 3D space by transforming noise into motion, which makes it better
+        suited for representing uncertainty when an instruction admits multiple plausible
+        futures.
+      </li>
+    </ul>
+
+    <!-- FIGURE: architecture diagram -->
+    <figure class="full">
+      <img src="images/image2.png" alt="MolmoMotion architecture" />
+      <figcaption>
+        The MolmoMotion architecture. The shared input to the Molmo 2 backbone consists of
+        image tokens of RGB observations, text tokens of action description, and 2D query
+        point feature tokens sampled from the Molmo 2 vision encoder. The autoregressive
+        variant encodes the initial 3D query coordinates and decodes future trajectories as
+        quantized coordinate text, while the flow-matching variant represents them directly
+        in continuous 3D coordinate space.
+      </figcaption>
+    </figure>
+
+    <!-- ===================== DATA ===================== -->
+    <h2>MolmoMotion-1M and PointMotionBench</h2>
+
+    <p>
+      To train MolmoMotion, we needed data that did not yet exist: large-scale videos with
+      3D point trajectories grounded to specific objects and paired with action
+      descriptions. Existing 3D-track datasets were small and domain-limited, and while
+      internet video had all the scale and diversity we wanted, it carried no 3D
+      annotations. So we built an automatic pipeline that extracts object-grounded 3D
+      trajectories from unconstrained video.
+    </p>
+
+    <p>
+      Given an input video and its action description, our annotation pipeline produces
+      object-grounded 3D point trajectories in metric world coordinates. The pipeline
+      figure provides an overview of the pipeline and illustrates each processing stage in
+      detail. The challenging part is that raw tracks from unconstrained video are noisy,
+      full of depth and tracking errors that leave points jittering and drifting, and
+      objects can be static in most parts of video. To make the data trustworthy, we filter
+      out points that don't move coherently with the rest of the object, smooth what's
+      left, and segment each clip down to the window where the object actually moves.
+    </p>
+
+    <p>
+      The pipeline yields MolmoMotion-1M, the largest corpus of action-described,
+      object-grounded 3D point trajectories assembled to date, spanning 736 motion types
+      and 5,692 distinct objects.
+    </p>
+
+    <!-- FIGURE: data annotation pipeline -->
+    <figure class="full">
+      <img src="images/image16.png" alt="Data annotation pipeline overview" />
+      <figcaption>
+        An overview of our data annotation pipeline. Given a video of an action event and
+        its description, we first ground the moving object and sample query points on it.
+        We then track dense 2D points on the object, lift these tracks into a shared metric
+        3D frame, and use object-level spatial and temporal consistency priors to filter
+        unreliable trajectories. Finally, we clip the video around intervals where the
+        grounded object undergoes meaningful motion.
+      </figcaption>
+    </figure>
+
+    <p class="demo-label">"Move and rotate wooden bowl with fruits on the table"</p>
+    <div class="gif-row">
+      <img src="images/image4.gif" alt="Wooden bowl motion prediction, view 1" />
+      <img src="images/image9.gif" alt="Wooden bowl motion prediction, view 2" />
+    </div>
+
+    <p class="demo-label">"Roll a lint roller on a blue cloth"</p>
+    <div class="gif-row">
+      <img src="images/image12.gif" alt="Lint roller motion prediction, view 1" />
+      <img src="images/image10.gif" alt="Lint roller motion prediction, view 2" />
+    </div>
+
+    <figcaption style="margin-top:18px;">
+      MolmoMotion predicts future 3D point trajectories that closely match ground-truth
+      motion across diverse objects, scenes, and language instructions.
+    </figcaption>
+
+    <p style="margin-top:40px;">
+      To evaluate motion forecasting, we also built PointMotionBench, a human-validated
+      benchmark of held-out 3D trajectories. It covers 2720 clips spanning 111 object
+      categories and 61 motion types, including indoor manipulation, egocentric
+      hand-object interaction, and outdoor dynamic scenes. This gives us a controlled way
+      to ask whether a model is actually predicting motion in 3D.
+    </p>
+
+    <!-- ===================== EXPERIMENTS ===================== -->
+    <h2>Experiments and Performance</h2>
+
+    <p>
+      We evaluate MolmoMotion in three settings. First, we test whether it can forecast
+      future 3D point trajectories more accurately than existing motion prediction methods.
+      Second, we evaluate whether the learned motion prior transfers to robot manipulation
+      tasks where future motion matters. Third, we evaluate whether the learned motion
+      prior transfers to controllable video generation.
+    </p>
+
+    <h3>3D motion forecasting</h3>
+
+    <p>
+      We first evaluate MolmoMotion on PointMotionBench, our held-out benchmark for
+      object-centric 3D motion forecasting. In this setting, each method receives the
+      current visual observation, query points on an object, and, when supported, a
+      language instruction describing the future action. The goal is to predict where those
+      object points will move in 3D over the next few seconds. MolmoMotion outperforms the
+      methods we compare against, beating pixel-space video generators, parametric 3D
+      methods, and simple constant-velocity extrapolation alike.
+    </p>
+
+    <!-- GRAPH: 3D motion forecasting results table (image8.png) -->
+    <figure class="full" id="graph-forecasting">
+      <img src="images/image8.png" alt="3D motion forecasting results on PointMotionBench" />
+    </figure>
+
+    <h3>Downstream evaluation: robotics planning</h3>
+
+    <div class="gif-row">
+      <img src="images/image18.gif" alt="Robot: take cloth out of container" />
+      <img src="images/image3.gif" alt="Robot: move lid on pot" />
+    </div>
+    <p class="demo-label" style="text-align:center;">
+      "Take cloth out of container" &nbsp;&nbsp;&nbsp;&nbsp; "Move lid on pot"
+    </p>
+    <figcaption>
+      MolmoMotion adapts efficiently to real robot videos from DROID. After fine-tuning,
+      the model predicts coherent object trajectories across different manipulation tasks.
+    </figcaption>
+
+    <p style="margin-top:40px;">
+      A useful motion prior should transfer across embodiments. A cup lifted by a human
+      hand and a cup lifted by a robot gripper may involve very different actions, but the
+      object itself can follow a similar path through 3D space. This makes MolmoMotion
+      naturally useful for robotics, where the policy needs to reason about how objects
+      should move.
+    </p>
+
+    <p>
+      We test this in both simulated and real robot settings. In simulation settings, a
+      manipulation policy initialized from MolmoMotion reached 76.3% task success on
+      pick-and-place versus 56.0% for a Molmo 2 baseline. It also learned faster, hitting
+      51% at 10K steps while the baseline was at 19%. In real robot settings, we fine-tuned
+      MolmoMotion on real robot footage from DROID, and it reached the baseline's 12K-step
+      error in roughly 2K steps.
+    </p>
+
+    <!-- GRAPH: robotics planning results (image15.png) -->
+    <figure class="full" id="graph-robotics">
+      <img src="images/image15.png" alt="Robotics planning results" />
+    </figure>
+
+    <h3>Downstream evaluation: video generation</h3>
+
+    <p class="demo-label">"A flamingo dips its beak into the water while walking to the right"</p>
+    <div class="gif-row">
+      <img src="images/image7.gif" alt="Flamingo video generation, frame set 1" />
+      <img src="images/image13.gif" alt="Flamingo video generation, frame set 2" />
+      <img src="images/image17.gif" alt="Flamingo video generation, frame set 3" />
+    </div>
+
+    <p class="demo-label">"Take the round light brown plate from the table"</p>
+    <div class="gif-row">
+      <img src="images/image6.gif" alt="Plate video generation, frame set 1" />
+      <img src="images/image11.gif" alt="Plate video generation, frame set 2" />
+      <img src="images/image5.gif" alt="Plate video generation, frame set 3" />
+    </div>
+
+    <figcaption>
+      MolmoMotion-guided video generation produces more realistic object motion and follows
+      the prompted action more closely.
+    </figcaption>
+
+    <p style="margin-top:40px;">
+      MolmoMotion's predicted 3D trajectories can also guide video generation. Instead of
+      asking an image-to-video model to infer motion only from text, we provide explicit
+      future object trajectories as a motion-control signal.
+    </p>
+
+    <p>
+      When used with a track-conditioned video generator, MolmoMotion improves video
+      quality over the base model across all five motion-related metrics we evaluate. It
+      also outperforms a much larger image-to-video model on four of the five metrics.
+      Qualitatively, MolmoMotion-guided generations show more physically plausible object
+      motion and follow the prompted action more closely.
+    </p>
+
+    <!-- GRAPH: video generation metrics (image14.png) -->
+    <figure class="full" id="graph-videogen">
+      <img src="images/image14.png" alt="Video generation metrics" />
+    </figure>
+
+    <!-- ===================== RELEASE ===================== -->
+    <h2>Release and what's next</h2>
+
+    <p>
+      MolmoMotion is a capable model, but there are still limitations to note. It uses 8
+      query points per object during training, enough to forecast a useful trajectory but
+      not enough to densely represent surface geometry, which limits the model's handling of
+      complex deformable motion.
+    </p>
+
+    <p>
+      Perception alone isn't enough. The harder and more valuable problem is forecasting:
+      anticipating how the world will move before it moves. We think it's as fundamental to
+      machine intelligence as recognizing what's already there, and until now there hasn't
+      been a general way to do it. MolmoMotion is our answer, a general 3D motion prediction
+      that works on any object, learned from ordinary video, and already the most accurate
+      forecaster we know of. The applications will follow, in robotics, in video, and in
+      places no one has mapped yet.
+    </p>
+
+    <p>
+      We encourage you to try MolmoMotion by downloading the weights, inspecting the
+      training data, and evaluating our methods against PointMotionBench.
+    </p>
+
+  </main>
+
+  <footer class="footer">
+    <p>AI2 Research · MolmoMotion</p>
+  </footer>
+
+</body>
+</html>
